@@ -9,7 +9,7 @@ constants()
 
 % TLE Data & Simulation Time
 satTLE = deconstruct_TLE('OrbocommTLE.txt');
-simTime = 86400;
+simTime = 172800;
 
 % Simulate Orbit
 [ECIPos,ECIVel,trueAnomaly] = orbitSimulate(satTLE,simTime);
@@ -31,6 +31,7 @@ velText   = uicontrol('Style', 'text', 'Position', [20 150 250 30], 'FontSize', 
 rhoText   = uicontrol('Style', 'text', 'Position', [20 120 250 30], 'FontSize', 12);
 dragText  = uicontrol('Style', 'text', 'Position', [20 90  250 30], 'FontSize', 12);
 tempText  = uicontrol('Style', 'text', 'Position', [20 60  250 30], 'FontSize', 12);
+timeText  = uicontrol('Style', 'text', 'Position', [20 30  250 30], 'FontSize', 12);
 
 
 % Constants
@@ -38,20 +39,14 @@ omega_earth = 7.2921159e-5;
 timeStep = 100;
 angleRotate = rad2deg(omega_earth*timeStep);
 
-% Real-time update loop
+%Deorbit parameters
+deorbitTriggered = false;
+deorbitTime = 86400;     % Trigger deorbit after 1 day (in seconds)
+deltaV = 100;            % Retro-burn delta V in m/s
+
+% Real-time update loop with visual deorbit after 1 day
+burnTriggered = false;
 for i = 1:timeStep:simTime
-    % Update 3D Satellite
-    set(plt.sats, 'XData', ECIPos(1,i), ...
-                  'YData', ECIPos(2,i), ...
-                  'ZData', ECIPos(3,i));
-    
-    % Update Ground Trace
-    set(plt.ground_trace, 'XData', rad2deg(LLHGDPos(2,i)), ...
-                          'YData', rad2deg(LLHGDPos(1,i)));
-    
-    % Rotate Earth
-    rotate(globe, [0 0 1], angleRotate);
-    
     % Real-time telemetry values
     altitude = LLHGDPos(3,i) / 1000;               % km
     latitude = rad2deg(LLHGDPos(1,i));             % deg
@@ -62,6 +57,31 @@ for i = 1:timeStep:simTime
     drag = 0.5 * rho * velocity^2 * Cd * A / m;    % N/kg
     temp = 15 + 10 * sin(i/10000);                 % dummy temp °C
 
+    % Deorbit burn trigger after 1 day
+    if i >= 86400 && ~burnTriggered
+        fprintf('Deorbit burn triggered at t = %.0f sec\n', i);
+        burnTriggered = true;
+        velocity = velocity - 200;  % Assume 200 m/s retrograde ΔV
+    end
+
+    % If deorbit is triggered, simulate decay by scaling down radius
+    if burnTriggered
+        decayFactor = 1 - 0.000002 * (i - 86400);  % small decay over time
+        ECIPos(:,i) = ECIPos(:,i) * decayFactor;
+    end
+
+    % Update 3D Satellite
+    set(plt.sats, 'XData', ECIPos(1,i), ...
+                  'YData', ECIPos(2,i), ...
+                  'ZData', ECIPos(3,i));
+
+    % Update Ground Trace
+    set(plt.ground_trace, 'XData', rad2deg(LLHGDPos(2,i)), ...
+                          'YData', rad2deg(LLHGDPos(1,i)));
+
+    % Rotate Earth
+    rotate(globe, [0 0 1], angleRotate);
+
     % Update UI
     set(altText,  'String', sprintf('Altitude: %.1f km', altitude));
     set(latText,  'String', sprintf('Latitude: %.2f°', latitude));
@@ -70,6 +90,9 @@ for i = 1:timeStep:simTime
     set(rhoText,  'String', sprintf('Density: %.2e kg/m³', rho));
     set(dragText, 'String', sprintf('Drag: %.2f N/kg', drag));
     set(tempText, 'String', sprintf('Temp: %.2f °C', temp));
+    set(timeText, 'String', sprintf('Sim Time: %.0f s', i));
+
     
+
     drawnow;
 end
