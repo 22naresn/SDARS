@@ -72,8 +72,8 @@ for i = 1:timeStep:simTime
     Cd = 2.2; A = 1; m = 1;
     drag = 0.5 * rho * velocity^2 * Cd * A / m;
 
-    % Dummy Temperature
-    temp = 15 + 10 * sin(i/10000);
+    % Temperature from atmosisa model
+    [~, temp] = atmosisa(LLHGDPos(3,i));  % temp in Kelvin
 
     % Trigger deorbit after 1 day
     if i >= 86400 && ~burnTriggered
@@ -97,7 +97,7 @@ for i = 1:timeStep:simTime
     if burnTriggered
         set(plt.ground_trace, 'XData', rad2deg(LLHGDPos(2,i)), ...
                               'YData', rad2deg(LLHGDPos(1,i)), ...
-                              'CData', [0 1 0]);  % RGB for red
+                              'CData', [0 1 0]);  % RGB for green
     else
         set(plt.ground_trace, 'XData', rad2deg(LLHGDPos(2,i)), ...
                               'YData', rad2deg(LLHGDPos(1,i)));
@@ -113,7 +113,7 @@ for i = 1:timeStep:simTime
     set(velText,  'String', sprintf('Velocity: %.1f m/s', velocity));
     set(rhoText,  'String', sprintf('Density: %.2e kg/m³', rho));
     set(dragText, 'String', sprintf('Drag: %.2f N/kg', drag));
-    set(tempText, 'String', sprintf('Temp: %.2f °C', temp));
+    set(tempText, 'String', sprintf('Temp: %.2f K', temp));
     set(timeText, 'String', sprintf('Sim Time: %.0f s', i));
 
     drawnow;
