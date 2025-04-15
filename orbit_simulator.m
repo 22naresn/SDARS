@@ -47,42 +47,64 @@ deltaV = 100;            % Retro-burn delta V in m/s
 % Real-time update loop with visual deorbit after 1 day
 burnTriggered = false;
 for i = 1:timeStep:simTime
-    % Real-time telemetry values
-    altitude = LLHGDPos(3,i) / 1000;               % km
-    latitude = rad2deg(LLHGDPos(1,i));             % deg
-    longitude = rad2deg(LLHGDPos(2,i));            % deg
+    % Convert to ECEF and LLH from ECI
+    ecefNow = eci2ecef(ECIPos(:,i), i);
+    llhgdNow = ecef2llhgd(ecefNow);
+
+    % Real-time geodetic position
+    altitude = llhgdNow(3) / 1000;                 % km
+    latitude = rad2deg(llhgdNow(1));               % deg
+    longitude = rad2deg(llhgdNow(2));              % deg
+
+    % MSIS Input params
+    year = 2023;
+    doy = floor(i / 86400) + 1;
+    UTseconds = mod(i, 86400);
+    f107 = 150; f107Daily = 150;
+    ap = double([4 0 0 0 0 0 0]);
+    flags = ones(1, 23);
+
+    % Call MSIS Model
+    atmos = atmosnrlmsise00(altitude * 1000, latitude, longitude, year, doy, UTseconds);
+    rho = atmos(1) / 1000;                         % g/m³ → kg/m³
+    temp = atmos(2) - 273.15;                      % Kelvin → °C
+
+    % Velocity & Drag
     velocity = norm(ECIVel(:,i));                  % m/s
-    rho = 1.225 * exp(-altitude / 7.64);           % kg/m³, exponential density
     Cd = 2.2; A = 1; m = 1;
     drag = 0.5 * rho * velocity^2 * Cd * A / m;    % N/kg
-    temp = 15 + 10 * sin(i/10000);                 % dummy temp °C
 
-    % Deorbit burn trigger after 1 day
+    % Trigger burn after 1 day
     if i >= 86400 && ~burnTriggered
         fprintf('Deorbit burn triggered at t = %.0f sec\n', i);
         burnTriggered = true;
-        velocity = velocity - 200;  % Assume 200 m/s retrograde ΔV
+        velocity = velocity - 200;  % ΔV
     end
 
-    % If deorbit is triggered, simulate decay by scaling down radius
+    % Simulate decay after burn
     if burnTriggered
-        decayFactor = 1 - 0.000002 * (i - 86400);  % small decay over time
+        decayFactor = 1 - 0.000002 * (i - 86400);
         ECIPos(:,i) = ECIPos(:,i) * decayFactor;
     end
 
-    % Update 3D Satellite
+    % Update satellite
     set(plt.sats, 'XData', ECIPos(1,i), ...
                   'YData', ECIPos(2,i), ...
                   'ZData', ECIPos(3,i));
 
-    % Update Ground Trace
-    set(plt.ground_trace, 'XData', rad2deg(LLHGDPos(2,i)), ...
-                          'YData', rad2deg(LLHGDPos(1,i)));
+    % Ground trace
+    if burnTriggered
+        plot(rad2deg(llhgdNow(2)), rad2deg(llhgdNow(1)), 'rx', ...
+             'Parent', plt.ground_trace.Parent);
+    else
+        set(plt.ground_trace, 'XData', rad2deg(LLHGDPos(2,i)), ...
+                              'YData', rad2deg(LLHGDPos(1,i)));
+    end
 
-    % Rotate Earth
+    % Earth rotation
     rotate(globe, [0 0 1], angleRotate);
 
-    % Update UI
+    % Update telemetry window
     set(altText,  'String', sprintf('Altitude: %.1f km', altitude));
     set(latText,  'String', sprintf('Latitude: %.2f°', latitude));
     set(lonText,  'String', sprintf('Longitude: %.2f°', longitude));
@@ -91,8 +113,6 @@ for i = 1:timeStep:simTime
     set(dragText, 'String', sprintf('Drag: %.2f N/kg', drag));
     set(tempText, 'String', sprintf('Temp: %.2f °C', temp));
     set(timeText, 'String', sprintf('Sim Time: %.0f s', i));
-
-    
 
     drawnow;
 end
