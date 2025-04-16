@@ -23,7 +23,7 @@ LLHGDPos = ecef2llhgd(ECEFPos);
 [fig3D, globe, plt, sat_lat, sat_long] = makePlot(ECIPos, LLHGDPos);
 
 % Create Telemetry Window
-figTelemetry = figure('Name', 'Telemetry', 'NumberTitle', 'off', 'Position', [1200, 300, 300, 300]);
+figTelemetry = figure(3); set(figTelemetry, 'Units', 'normalized', 'Position', [0.0 0.0 0.5 0.5], 'MenuBar', 'none', 'ToolBar', 'none', 'NumberTitle', 'off', 'Name', '', 'WindowStyle', 'normal');
 altText   = uicontrol('Style', 'text', 'Position', [20 240 250 30], 'FontSize', 12);
 latText   = uicontrol('Style', 'text', 'Position', [20 210 250 30], 'FontSize', 12);
 lonText   = uicontrol('Style', 'text', 'Position', [20 180 250 30], 'FontSize', 12);
