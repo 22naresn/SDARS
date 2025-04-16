@@ -3,7 +3,7 @@ clc;
 clear;
 close all;
 
-%% Initialisation
+% Initialisation
 addpath('./module_conversion','./tle_data','./functions');
 constants()
 
@@ -32,7 +32,6 @@ rhoText   = uicontrol('Style', 'text', 'Position', [20 120 250 30], 'FontSize', 
 dragText  = uicontrol('Style', 'text', 'Position', [20 90  250 30], 'FontSize', 12);
 tempText  = uicontrol('Style', 'text', 'Position', [20 60  250 30], 'FontSize', 12);
 timeText  = uicontrol('Style', 'text', 'Position', [20 30  250 30], 'FontSize', 12);
-
 
 % Constants
 omega_earth = 7.2921159e-5;
