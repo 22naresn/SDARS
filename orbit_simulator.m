@@ -24,14 +24,14 @@ LLHGDPos = ecef2llhgd(ECEFPos);
 
 % Create Telemetry Window
 figTelemetry = figure(3); set(figTelemetry, 'Units', 'normalized', 'Position', [0.0 0.0 0.5 0.5], 'MenuBar', 'none', 'ToolBar', 'none', 'NumberTitle', 'off', 'Name', '', 'WindowStyle', 'normal');
-altText   = uicontrol('Style', 'text', 'Position', [20 240 250 30], 'FontSize', 12);
-latText   = uicontrol('Style', 'text', 'Position', [20 210 250 30], 'FontSize', 12);
-lonText   = uicontrol('Style', 'text', 'Position', [20 180 250 30], 'FontSize', 12);
-velText   = uicontrol('Style', 'text', 'Position', [20 150 250 30], 'FontSize', 12);
-rhoText   = uicontrol('Style', 'text', 'Position', [20 120 250 30], 'FontSize', 12);
-dragText  = uicontrol('Style', 'text', 'Position', [20 90  250 30], 'FontSize', 12);
-tempText  = uicontrol('Style', 'text', 'Position', [20 60  250 30], 'FontSize', 12);
-timeText  = uicontrol('Style', 'text', 'Position', [20 30  250 30], 'FontSize', 12);
+altText   = uicontrol('Style', 'text', 'Position', [320 360 250 30], 'FontSize', 12);
+latText   = uicontrol('Style', 'text', 'Position', [320 330 250 30], 'FontSize', 12);
+lonText   = uicontrol('Style', 'text', 'Position', [320 300 250 30], 'FontSize', 12);
+velText   = uicontrol('Style', 'text', 'Position', [320 270 250 30], 'FontSize', 12);
+rhoText   = uicontrol('Style', 'text', 'Position', [320 240 250 30], 'FontSize', 12);
+dragText  = uicontrol('Style', 'text', 'Position', [320 210  250 30], 'FontSize', 12);
+tempText  = uicontrol('Style', 'text', 'Position', [320 180  250 30], 'FontSize', 12);
+timeText  = uicontrol('Style', 'text', 'Position', [320 150  250 30], 'FontSize', 12);
 
 % Constants
 omega_earth = 7.2921159e-5;
@@ -73,7 +73,7 @@ for i = 1:timeStep:simTime
     else
         LLH_current = LLHGDPos(:,i);  % use precomputed value before deorbit
     end
-    
+
     % Telemetry Parameters
     % Use LLH_current (updated if decayed, else original)
     latitude = rad2deg(LLH_current(1));
