@@ -53,11 +53,34 @@ year = 2024;
 doy = 1;
 
 for i = 1:timeStep:simTime
+    % Simulated decay after burn
+    if burnTriggered
+        Ae = A * Cd;  % Effective area
+        radius = norm(ECIPos(:,i));  % Orbital radius from Earth's center (m)
+        dt = timeStep;  % Simulation time step (s)
+    
+        decayRate = 3 * pi * rho * radius * (Ae / m);  % decay per second
+        decayFactor = 1 - decayRate * dt;
+    
+        % Prevent decayFactor from going negative or blowing up
+        decayFactor = max(decayFactor, 0.95);
+    
+        ECIPos(:,i) = ECIPos(:,i) * decayFactor;
+
+        % Recalculate LLH from decayed ECI
+        ECEF_current = eci2ecef(ECIPos(:,i), i);
+        LLH_current = ecef2llhgd(ECEF_current);
+    else
+        LLH_current = LLHGDPos(:,i);  % use precomputed value before deorbit
+    end
+    
     % Telemetry Parameters
-    altitude = LLHGDPos(3,i);  % meters
-    latitude = rad2deg(LLHGDPos(1,i));
-    longitude = rad2deg(LLHGDPos(2,i));
-    velocity = norm(ECIVel(:,i));  % m/s
+    % Use LLH_current (updated if decayed, else original)
+    latitude = rad2deg(LLH_current(1));
+    longitude = rad2deg(LLH_current(2));
+    altitude = LLH_current(3);  % meters above MSL
+
+    velocity = norm(ECIVel(:,i));  % m/s (decay affects pos, not vel in this toy model)
     UTseconds = mod(i, 86400);  % seconds in day
     localApparentSolarTime = UTseconds/3600 + longitude/15;
 
@@ -80,13 +103,7 @@ for i = 1:timeStep:simTime
         burnTriggered = true;
         velocity = velocity - 200;  % retrograde burn ΔV
     end
-
-    % Simulated decay after burn
-    if burnTriggered
-        decayFactor = 1 - 0.000002 * (i - 86400);
-        ECIPos(:,i) = ECIPos(:,i) * decayFactor;
-    end
-
+    
     % Update 3D Satellite
     set(plt.sats, 'XData', ECIPos(1,i), ...
                   'YData', ECIPos(2,i), ...
