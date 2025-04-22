@@ -9,9 +9,6 @@
 %          times    = times since vernal equinox alignment [s]
 %          times is an array of time
 % Output : pos_eci  = [x; y; z] | ECI                      [m]
-%
-% Kelvin Hsu
-% 2016
 
 function pos_eci = ecef2eci(pos_ecef, times)
 

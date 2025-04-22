@@ -6,9 +6,6 @@
 %
 % Input  : pos_ecef = [x; y; z] | ECEF                     [m]
 % Output : pos_lg   = [x; y; z] | LLHGCV/LLHGDV            [m]
-%
-% Kelvin Hsu
-% 2016
 
 function pos_lg = ecef2lg(pos_ecef, pos_llh_ground)
     

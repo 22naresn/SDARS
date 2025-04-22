@@ -7,9 +7,6 @@
 % Input  : pos_eci  = [x; y; z] | ECI                      [m]
 %          times    = times since vernal equinox alignment [s]
 % Output : pos_ecef = [x; y; z] | ECEF                     [m]
-%
-% Kelvin Hsu
-% 2016
 
 function pos_ecef = eci2ecef(pos_eci, times)
 

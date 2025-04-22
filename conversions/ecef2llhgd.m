@@ -6,9 +6,6 @@
 %
 % Input  : [x;y;z]         | ECEF Coordinates nxm array
 % Output : [lat;long;h]    | Longitude, Lattitude & Height 
-%
-% Kelvin Hsu
-% 2016
 
 function pos_llhgd = ecef2llhgd(pos_ecef)
 

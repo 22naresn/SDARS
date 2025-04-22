@@ -6,9 +6,6 @@
 %
 % Input  : [lat_c;long;alt]  | LLHGC            [rad,rad,m]
 % Output : [x; y; z] | ECEF                     [m]
-%
-% Kelvin Hsu
-% 2016
 
 function pos_ecef = llhgc2ecef(pos_llhgc)
     

@@ -6,9 +6,6 @@
 %
 % Input  : ???
 % Output : ???
-%
-% Kelvin Hsu
-% 2016
 
 function pos_ecef = llhgd2ecef(pos_llhgd)
    
