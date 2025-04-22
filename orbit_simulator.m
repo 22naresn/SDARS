@@ -4,12 +4,13 @@ clear;
 close all;
 
 % Initialisation
-addpath('./module_conversion','./tle_data','./functions');
+addpath('./conversions','./tle_data','./functions');
 constants()
 
 % TLE Data & Simulation Time
 satTLE = deconstruct_TLE('OrbocommTLE.txt');
-simTime = 172800;
+simTime = 172800;  % 2 days in seconds
+%simTime = 86400;  % 1 day in seconds
 
 % Simulate Orbit
 [ECIPos,ECIVel,trueAnomaly] = orbitSimulate(satTLE,simTime);
@@ -29,9 +30,10 @@ latText   = uicontrol('Style', 'text', 'Position', [320 330 250 30], 'FontSize',
 lonText   = uicontrol('Style', 'text', 'Position', [320 300 250 30], 'FontSize', 12);
 velText   = uicontrol('Style', 'text', 'Position', [320 270 250 30], 'FontSize', 12);
 rhoText   = uicontrol('Style', 'text', 'Position', [320 240 250 30], 'FontSize', 12);
-dragText  = uicontrol('Style', 'text', 'Position', [320 210  250 30], 'FontSize', 12);
-tempText  = uicontrol('Style', 'text', 'Position', [320 180  250 30], 'FontSize', 12);
-timeText  = uicontrol('Style', 'text', 'Position', [320 150  250 30], 'FontSize', 12);
+dragText  = uicontrol('Style', 'text', 'Position', [320 210 250 30], 'FontSize', 12);
+tempText  = uicontrol('Style', 'text', 'Position', [320 180 250 30], 'FontSize', 12);
+timeText  = uicontrol('Style', 'text', 'Position', [320 150 250 30], 'FontSize', 12);
+testBox   = uicontrol('Style', 'text', 'Position', [320 120 250 30], 'FontSize', 12);
 
 % Constants
 omega_earth = 7.2921159e-5;
@@ -52,77 +54,84 @@ flags = ones(1, 23);
 year = 2024;
 doy = 1;
 
-for i = 1:timeStep:simTime
-    % Simulated decay after burn
+% Constants for drag calculation
+Cd = 2.2;       % Drag coefficient
+A = 1;          % Cross-sectional area in m^2
+m = 1;          % Satellite mass in kg
+
+for i = 80000:timeStep:simTime
+    % Get current position and velocity
+    r_vec = ECIPos(:,i);
+    v_vec = ECIVel(:,i);
+    radius = norm(r_vec);
+    velocity = norm(v_vec);
+
+    % Convert position to LLH
     if burnTriggered
-        Ae = A * Cd;  % Effective area
-        radius = norm(ECIPos(:,i));  % Orbital radius from Earth's center (m)
-        dt = timeStep;  % Simulation time step (s)
-    
-        decayRate = 3 * pi * rho * radius * (Ae / m);  % decay per second
-        decayFactor = 1 - decayRate * dt;
-    
-        % Prevent decayFactor from going negative or blowing up
-        decayFactor = max(decayFactor, 0.95);
-    
+        % Decay position using simplified model
+        Ae = A * Cd;  % Effective cross-section
+        dt = timeStep;
+
+        % Atmospheric density (already computed below)
+        decayRate = 3 * pi * rho * radius * (Ae / m);  % decay per sec
+        decayFactor = max(1 - decayRate * dt, 0.95);   % prevent negative growth
+
+        % Apply decay to ECI position (radial shrinkage)
         ECIPos(:,i) = ECIPos(:,i) * decayFactor;
 
-        % Recalculate LLH from decayed ECI
+        % Recompute ECEF/LLH from updated ECI
         ECEF_current = eci2ecef(ECIPos(:,i), i);
         LLH_current = ecef2llhgd(ECEF_current);
     else
-        LLH_current = LLHGDPos(:,i);  % use precomputed value before deorbit
+        LLH_current = LLHGDPos(:,i);
     end
 
-    % Telemetry Parameters
-    % Use LLH_current (updated if decayed, else original)
-    latitude = rad2deg(LLH_current(1));
+    % Geodetic params
+    latitude  = rad2deg(LLH_current(1));
     longitude = rad2deg(LLH_current(2));
-    altitude = LLH_current(3);  % meters above MSL
+    altitude  = LLH_current(3);
 
-    velocity = norm(ECIVel(:,i));  % m/s (decay affects pos, not vel in this toy model)
-    UTseconds = mod(i, 86400);  % seconds in day
+    % Solar/Universal Time
+    UTseconds = mod(i, 86400);
     localApparentSolarTime = UTseconds/3600 + longitude/15;
 
-    % MSIS Density (kg/m³)
+    % Atmospheric Density from MSIS (use updated altitude)
     atmos = atmosnrlmsise00(altitude, latitude, longitude, ...
               year, doy, UTseconds, ...
               localApparentSolarTime, f107Average, f107Daily, ap, flags);
-    rho = atmos(1) * 1e-3;  % convert g/m³ to kg/m³
+    rho = atmos(1) * 1e-3;
 
-    % Drag Force Estimate
-    Cd = 2.2; A = 1; m = 1;
+    % Drag force
     drag = 0.5 * rho * velocity^2 * Cd * A / m;
 
-    % Temperature from atmosisa model
-    [~, temp] = atmosisa(LLHGDPos(3,i));  % temp in Kelvin
+    % ISA Temperature
+    [~, temp] = atmosisa(altitude);
 
-    % Trigger deorbit after 1 day
-    if i >= 86400 && ~burnTriggered
+    % Trigger deorbit burn
+    if i >= deorbitTime && ~burnTriggered
         fprintf('Deorbit burn triggered at t = %.0f sec\n', i);
         burnTriggered = true;
-        velocity = velocity - 200;  % retrograde burn ΔV
+        velocity = velocity - deltaV;  % Retro-burn
     end
-    
-    % Update 3D Satellite
+
+    % Update Visualization
     set(plt.sats, 'XData', ECIPos(1,i), ...
                   'YData', ECIPos(2,i), ...
                   'ZData', ECIPos(3,i));
 
-    % Update Ground Trace (you can change color/shape post-burn here)
     if burnTriggered
-        set(plt.ground_trace, 'XData', rad2deg(LLHGDPos(2,i)), ...
-                              'YData', rad2deg(LLHGDPos(1,i)), ...
-                              'CData', [0 1 0]);  % RGB for green
+        set(plt.ground_trace, 'XData', rad2deg(LLH_current(2)), ...
+                              'YData', rad2deg(LLH_current(1)), ...
+                              'CData', [0 1 0]);
     else
-        set(plt.ground_trace, 'XData', rad2deg(LLHGDPos(2,i)), ...
-                              'YData', rad2deg(LLHGDPos(1,i)));
+        set(plt.ground_trace, 'XData', rad2deg(LLH_current(2)), ...
+                              'YData', rad2deg(LLH_current(1)));
     end
 
-    % Rotate Earth
+    % Earth rotation
     rotate(globe, [0 0 1], angleRotate);
 
-    % Update Telemetry UI
+    % Telemetry
     set(altText,  'String', sprintf('Altitude: %.1f km', altitude/1000));
     set(latText,  'String', sprintf('Latitude: %.2f°', latitude));
     set(lonText,  'String', sprintf('Longitude: %.2f°', longitude));
