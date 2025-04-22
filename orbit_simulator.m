@@ -1,4 +1,4 @@
-% Orbit Simulator
+% Main Orbit Simulator Program
 clc;
 clear;
 close all;
@@ -7,7 +7,7 @@ close all;
 addpath('./conversions','./tle_data','./functions');
 constants()
 
-% TLE Data & Simulation Time
+% Pull TLE Data & set Simulation Time
 satTLE = deconstruct_TLE('OrbocommTLE.txt');
 simTime = 172800;  % 2 days in seconds
 %simTime = 86400;  % 1 day in seconds
@@ -35,12 +35,12 @@ tempText  = uicontrol('Style', 'text', 'Position', [320 180 250 30], 'FontSize',
 timeText  = uicontrol('Style', 'text', 'Position', [320 150 250 30], 'FontSize', 12);
 testBox   = uicontrol('Style', 'text', 'Position', [320 120 250 30], 'FontSize', 12);
 
-% Constants
+% Declaring constants
 omega_earth = 7.2921159e-5;
 timeStep = 100;
 angleRotate = rad2deg(omega_earth*timeStep);
 
-%Deorbit parameters
+%Setting deorbit parameters
 deorbitTriggered = false;
 deorbitTime = 86400;     % Trigger deorbit after 1 day (in seconds)
 deltaV = 100;            % Retro-burn delta V in m/s
@@ -59,7 +59,7 @@ Cd = 2.2;       % Drag coefficient
 A = 1;          % Cross-sectional area in m^2
 m = 1;          % Satellite mass in kg
 
-for i = 80000:timeStep:simTime
+for i = 1:timeStep:simTime
     % Get current position and velocity
     r_vec = ECIPos(:,i);
     v_vec = ECIVel(:,i);

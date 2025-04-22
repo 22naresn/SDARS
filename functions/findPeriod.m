@@ -11,8 +11,7 @@ ECEFPos_Pol = cartesian2polar(ECEFPos);
 % This functions plots and finds the timevalues of the graph peaks
 [PKS,LOCS]= findpeaks(ECEFPos_Pol(1,:));
 
-% Now, to find the period by calculating the differences between each of the peak
-% timevalues 
+% Now, to find the period by calculating the differences between each of the peak timevalues 
 orbitPeriodArray = diff(LOCS);
 
 end

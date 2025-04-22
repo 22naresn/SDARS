@@ -1,13 +1,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % PlotEarthSphere.m - Script for plotting an Earth sized sphere to use for
-% visualisation of you satellite orbit. You
-% may either use this script or cut and paste the code into your own
-% script.
-%
-% By Mitch Bryson, 2007.
-%
-% close all
-% clear
+% visualisation of you satellite orbit.
 
 % Create figure and load topographical Earth map figure
 load('topo.mat','topo');
