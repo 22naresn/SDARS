@@ -33,7 +33,7 @@ function [fig3D, globe, plt, sat_lat, sat_long] = makePlot(ECIPos, LLHGDPos)
     %% 2D Ground Trace Setup
     fig.map = figure(2);
     set(fig.map, 'Units', 'normalized', 'Position', screen1);
-    map = imread('earth2D.jpg');
+    map = imread('Blue_Marble_Next_Generation_August.jpg');
     image([-180 180],[90 -90], map);
     axis xy;
     hold on;

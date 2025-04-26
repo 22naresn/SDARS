@@ -8,7 +8,7 @@ addpath('./conversions','./tle_data','./functions');
 constants()
 
 % Pull TLE Data & set Simulation Time
-satTLE = deconstruct_TLE('OrbocommTLE.txt');
+satTLE = deconstruct_TLE('STARLINK-2319.txt');
 simTime = 172800;  % 2 days in seconds
 %simTime = 86400;  % 1 day in seconds
 
@@ -56,8 +56,8 @@ doy = 1;
 
 % Constants for drag calculation
 Cd = 2.2;       % Drag coefficient
-A = 1;          % Cross-sectional area in m^2
-m = 1;          % Satellite mass in kg
+A = 2.5;          % Cross-sectional area in m^2
+m = 260;          % Satellite mass in kg
 
 for i = 1:timeStep:simTime
     % Get current position and velocity
@@ -96,13 +96,13 @@ for i = 1:timeStep:simTime
     localApparentSolarTime = UTseconds/3600 + longitude/15;
 
     % Atmospheric Density from MSIS (use updated altitude)
-    atmos = atmosnrlmsise00(altitude, latitude, longitude, ...
+    [~,atmos] = atmosnrlmsise00(altitude, latitude, longitude, ...
               year, doy, UTseconds, ...
               localApparentSolarTime, f107Average, f107Daily, ap, flags);
-    rho = atmos(1) * 1e-3;
+    rho = atmos(:,6);
 
     % Drag force
-    drag = 0.5 * rho * velocity^2 * Cd * A / m;
+    drag = 0.5 * rho * velocity^2 * Cd * A;
 
     % ISA Temperature
     [~, temp] = atmosisa(altitude);
@@ -137,7 +137,7 @@ for i = 1:timeStep:simTime
     set(lonText,  'String', sprintf('Longitude: %.2f°', longitude));
     set(velText,  'String', sprintf('Velocity: %.1f m/s', velocity));
     set(rhoText,  'String', sprintf('Density: %.2e kg/m³', rho));
-    set(dragText, 'String', sprintf('Drag: %.2f N/kg', drag));
+    set(dragText, 'String', sprintf('Drag: %.2f N', drag));
     set(tempText, 'String', sprintf('Temp: %.2f K', temp));
     set(timeText, 'String', sprintf('Sim Time: %.0f s', i));
 
