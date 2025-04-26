@@ -5,7 +5,7 @@
 % ECEF: Earth Centered Earth Fixed Frame
 %
 % Input  : [lat_c;long;alt]  | LLHGC            [rad,rad,m]
-% Output : [x; y; z] | ECEF                     [m]
+% Output : [x; y; z]         | ECEF             [m]
 
 function pos_ecef = llhgc2ecef(pos_llhgc)
     

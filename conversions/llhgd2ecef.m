@@ -4,8 +4,8 @@
 % Geodetic LLH: Geodetic Longitude, Latitude, Height Frame
 % ECEF: Earth Centered Earth Fixed Frame
 %
-% Input  : ???
-% Output : ???
+% Input  : [lat; long; h]  | Geodetic LLH      [rad, rad, m]
+% Output : [x; y; z]       | ECEF              [m]
 
 function pos_ecef = llhgd2ecef(pos_llhgd)
    
