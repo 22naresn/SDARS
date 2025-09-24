@@ -4,7 +4,6 @@ This repository contains the MATLAB-based simulation framework described in the 
 
 **Modelling Satellite Orbit Decay and Controlled Reentry Using Empirical Atmospheric Drag Models**  
 _Presented at ITDECC 2025_
-ISBN 978-93-7196-538-
 ---
 
 ## Overview
