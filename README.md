@@ -30,10 +30,9 @@ A lightweight MATLAB environment to simulate and visualize the post-mission orbi
 - query an MSIS implementation for atmospheric density;
 - propagate the orbit and visualize telemetry.
 
-3. Adjust parameters (TLE, satellite mass/area/Cd, deorbit timing, solar indices) on the top of the main file to experiment with different scenarios.
+3. Adjust parameters of satellite mass, cross section, Cd, solar indices on the top of the main file to experiment with different scenarios.
 
-> Note: This repository assumes you have MATLAB installed. If the NRLMSISE-00 port is included, make sure it is on the MATLAB path (look for `atmosnrlmsise00` or similar).
-
+> Note: This repository assumes you have MATLAB installed with the Astrophysics Toolbox.
 ---
 
 ## Authors
