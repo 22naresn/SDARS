@@ -4,13 +4,11 @@ This repository contains the MATLAB-based simulation framework described in the 
 
 **Modelling Satellite Orbit Decay and Controlled Reentry Using Empirical Atmospheric Drag Models**  
 _Presented at ITDECC 2025_
-
+ISBN 978-93-7196-538-
 ---
 
 ## Overview
 A lightweight MATLAB environment to simulate and visualize the post-mission orbital decay and controlled reentry of satellites in Low Earth Orbit (LEO). The simulator integrates TLE-based orbit initialization, empirical atmospheric density (NRLMSISE-00), a simple drag-induced decay model, and real-time visualization + telemetry.
-
-This README was generated from the paper's figures and content; extracted images from the paper are included in the `images/` folder and referenced below.
 
 ---
 
@@ -23,45 +21,9 @@ This README was generated from the paper's figures and content; extracted images
 
 ---
 
-## Figures (from the paper)
-<!-- Images are included in the `images/` folder -->
-
-### Process Flow
-![Process Flow](images/process_flow.jpg)
-
-### 3D Orbital Trajectory
-![3D Orbit](images/orbit_3d.jpg)
-
-### Ground Track (pre-deorbit)
-![Ground Track](images/ground_track.jpg)
-
-### Telemetry Window (live)
-![Telemetry](images/telemetry.jpg)
-
-### Altitude vs Time
-![Altitude vs Time](images/altitude_vs_time.jpg)
-
-### Atmospheric Density vs Time
-![Atmospheric Density vs Time](images/density_vs_time.jpg)
-
-### Velocity vs Time
-![Velocity vs Time](images/velocity_vs_time.jpg)
-
-### Drag Force vs Time
-![Drag Force vs Time](images/drag_force_vs_time.jpg)
-
-### Validation / Additional Figure
-![Validation](images/validation.jpg)
-
----
 
 ## Getting started / Usage
-1. Clone this repository to your local machine.
-
-```bash
-git clone https://github.com/your-username/sdars-simulation.git
-cd sdars-simulation
-```
+1. Clone this repository onto your local machine.
 
 2. Open the project in MATLAB. Locate the main simulation script (commonly named `main.m`, `run_simulation.m`, or similar) and run it. The project uses MATLAB functions to:
 - parse TLEs;
@@ -75,25 +37,12 @@ cd sdars-simulation
 
 ---
 
-## File layout (suggested)
-
-```
-/images                 # Figures extracted from the paper (used by this README)
-/src                    # MATLAB source (scripts and functions)
-/data                   # Example TLEs, logs, or config files
-README.md               # This file
-LICENSE
-```
-Adjust paths to match your repo structure if needed.
-
----
-
 ## Authors
-- Nilesh Naresh  
-- M Nithesh Narayana  
-- Dr. A. Srikrishnan  
+- Nilesh Naresh
+- Dr. A. Srikrishnan
+- Amuthanantham K 
+- M Nithesh Narayana    
 - Parella Balakrishna  
-- Amuthanantham K  
 - Pravin Jayanth E  
 
 ---
